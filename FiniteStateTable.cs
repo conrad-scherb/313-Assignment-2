@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace _313_Assignment_2 {
 
     // A struct representing the contents of a cell on the finite state table
@@ -5,43 +8,71 @@ namespace _313_Assignment_2 {
         public int nextState;
         public List<Action> actions;
 
-        public cell_FST() {
-            nextState = null;
-            actions = null;
+        public cell_FST(int nextState, List<Action> actions) {
+            this.nextState = nextState;
+            this.actions = actions;
+        } 
+
+        public void SetCellActions(List<Action> actions) {
+            this.actions = actions;
+        }
+
+        public void SetCellNextState(int nextState) {
+            this.nextState = nextState;
         }
     }
 
     public class FiniteStateTable {
-        private List<List<cell_FST>> FST;
-        private int startingState;
+        private List<List<cell_FST?>> FST;
+        private int currentState;
 
         public FiniteStateTable(int startState, int maxEvents, int maxStates) {
-            FST = new List<>();
+            FST = new List<List<cell_FST?>>();
             for (int i = 0;  i < maxEvents; i++) {
-                List<cell_FST> stateRow = List<>();
-                for (int j = 0; j < max; j++) {
-                    stateRow.add(new cell_FST());
+                List<cell_FST?> stateRow = new List<cell_FST?>();
+                for (int j = 0; j < maxEvents; j++) {
+                    stateRow.Add(null);
                 }
-                FST.add(stateRow);
+                FST.Add(stateRow);
             }
 
-            startingState = startState;
+            currentState = startState;
         }
 
-        public SetNextState(int state, int onEvent, int newState) {
-            FST[onEvent][state].nextState = newState;
+        public void SetNextState(int state, int onEvent, int newState) {
+            FST[onEvent][state]?.SetCellNextState(newState);
         }
 
-        public SetActions(int state, int onEvent, List<Action> newActions) {
-            FST[onEvent][state].actions = newActions;
+        public void SetActions(int state, int onEvent, List<Action> newActions) {
+            FST[onEvent][state]?.SetCellActions(newActions);
         }
 
-        public int GetNextState(int state, int onEvent) {
-            return FST[onEvent][state].nextState;
+        public void FillCell(int state, int onEvent, int newState, List<Action> newActions) {
+            FST[onEvent][state] = new cell_FST(newState, newActions);
         }
 
-        public int GetActions(int state, int onEvent) {
-            return FST[onEvent][state].actions;
+        public bool ExecuteEvent(int onEvent) {
+            if (FST[onEvent][currentState] != null) {
+                foreach (Action action in FST[onEvent][currentState].Value.actions) {
+                    action();
+                }
+                currentState = FST[onEvent][currentState].Value.nextState;
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public int? GetNextState(int state, int onEvent) {
+            return FST[onEvent][currentState]?.nextState;
+        }
+
+        public List<Action> GetActions(int state, int onEvent) {
+            return FST[onEvent][state]?.actions;
+        }
+
+        public int getCurrentState() {
+            return currentState;
         }
     }
 }
