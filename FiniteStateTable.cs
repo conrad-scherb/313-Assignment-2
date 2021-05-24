@@ -52,13 +52,16 @@ namespace _313_Assignment_2 {
         }
 
         public bool ExecuteEvent(int onEvent) {
+            // Check if this action is registered (i.e. has a cell_FST at that table location)
             if (FST[onEvent][currentState] != null) {
+                // Execute each action involved with this state change
                 foreach (Action action in FST[onEvent][currentState].Value.actions) {
                     action();
                 }
                 currentState = FST[onEvent][currentState].Value.nextState;
                 return true;
             } else {
+                // No state change occured or action executed
                 return false;
             }
         }
